@@ -1,5 +1,6 @@
 var express = require("express");
 var router = express.Router();
+
 const MySql = require("../routes/utils/MySql");
 const DButils = require("../routes/utils/DButils");
 const bcrypt = require("bcrypt");
@@ -9,6 +10,7 @@ router.post("/Register", async (req, res, next) => {
     // parameters exists
     // valid parameters
     // username exists
+
     let user_details = {
       username: req.body.username,
       firstname: req.body.firstname,
@@ -31,8 +33,9 @@ router.post("/Register", async (req, res, next) => {
     );
 
     await DButils.execQuery(
-      `INSERT INTO users (username, firstname, lastname, country, password, email, profilePic) VALUES ('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
-      '${user_details.country}', '${hash_password}', '${user_details.email}', '${user_details.profilePic}')`
+      `INSERT INTO users (username, firstname, lastname, country, password, email, profilePic) VALUES (
+      '${user_details.username}','${user_details.firstname}','${user_details.lastname}',
+      '${user_details.country}','${hash_password}','${user_details.email}','${user_details.profilePic}')`
     );
     res.status(201).send({ message: "user created", success: true });
   } catch (error) {
