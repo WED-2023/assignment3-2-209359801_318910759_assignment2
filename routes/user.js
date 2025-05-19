@@ -53,6 +53,30 @@ router.get('/favorites', async (req,res,next) => {
   }
 });
 
+router.post('/testInsertUser', async (req, res, next) => {
+  try {
+    const username = "testuser";
+    const firstname = "Test";
+    const lastname = "User";
+    const country = "Israel";
+    const password = "1234";
+    const email = "test@example.com";
+    const profilePic = "default.jpg";
+
+    const query = `
+      INSERT INTO users (username, firstname, lastname, country, password, email, profilePic)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const params = [username, firstname, lastname, country, password, email, profilePic];
+
+    await DButils.execQuery(query, params);
+
+    res.status(201).send({ message: "✅ User inserted successfully!" });
+  } catch (error) {
+    next(error);
+  }
+});
 
 
 
