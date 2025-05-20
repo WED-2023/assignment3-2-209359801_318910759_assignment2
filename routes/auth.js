@@ -9,7 +9,6 @@ const bcrypt = require("bcrypt");
 
 
 
-
 // Register
 
 router.post("/Register", async (req, res, next) => {
