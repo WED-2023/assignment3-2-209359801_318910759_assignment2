@@ -52,8 +52,8 @@ router.get("/recipes", async (request, response, next) => {
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipeID)); //extracting the recipe ids into array
     console.log(`User recipes by id: ${recipes_id_array}`);
-    const results = await user_utils.completeUserSpecificPreview(request.session, await recipe_utils.getRecipesPreview(recipes_id_array));
-    response.status(200).send(results);
+    // const results = await user_utils.completeUserSpecificPreview(request.session, await recipe_utils.getRecipesPreview(recipes_id_array));
+    response.status(200).send(recipes_id_array);
   } catch(error){
     next(error); 
   }
@@ -177,18 +177,14 @@ router.delete('/favorites/:recipeID', async (request, response, next) => {
 router.get("/check-username", async (request, response, next) => {
   try {
     const { username } = request.query;
-
     if (!username) {
       return response.status(400).send({ message: "Username is required", success: false });
     }
-
     const users = await DB_utils.execQuery(
       `SELECT username FROM users WHERE username = '${username}'`
 );
-
     const exists = users.length > 0;
     response.status(200).send({ exists, success: true });
-
   } catch (err) {
     next(err); 
   }

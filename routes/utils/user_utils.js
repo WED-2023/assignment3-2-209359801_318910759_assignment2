@@ -1,7 +1,6 @@
 const DB_utils = require("./DButils");
 
-// Favorite:
-
+// Favorite recipes:
 async function markAsFavorite(user_id, recipe_id){
   // recipe_id can be U_ID or just ID from spooncular
     const isFavorite = await isFavoriteByUser(user_id, recipe_id)
@@ -139,7 +138,7 @@ async function removeUserRecipe(user_id, recipeID) {
   const result = await DB_utils.execQuery(
     `DELETE FROM recipes WHERE recipeID = '${recipeID}' AND userID = ${Number(user_id)};`
   );
-  // execQuery שלך מחזיר את אובייקט התוצאה; ודא שהוא כולל affectedRows (mysql2 מחזיר)
+  // execQuery returns an array of results for SELECT queries,
   return result && (result.affectedRows > 0);
 }
 
@@ -151,7 +150,7 @@ async function completeUserSpecificPreview(session, recipes_preview_info) {
     for (const recipe of recipes_preview_info){
       let recipeID = recipe.id ? recipe.id : recipe.recipeID;
       recipe.isFavoriteByUser = await isFavoriteByUser(current_user, recipeID);
-      recipe.isWatched = await isWatchedByUser(current_user, recipeID);
+      // recipe.isWatched = await isWatchedByUser(current_user, recipeID);
     }
   }
   return recipes_preview_info;

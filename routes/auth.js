@@ -5,7 +5,6 @@ const MySql = require("./utils/MySql");
 const DB_utils = require("./utils/DButils");
 const bcrypt = require("bcrypt");
 
-
 // Register
 router.post("/Register", async (request, response, next) => {
   try {
@@ -72,8 +71,6 @@ router.post("/Login", async (request, response, next) => {
   }
 });
 
-
-
 // Logout
 router.post("/Logout", function (req, res) {
   if (!req.session || !req.session.user_id) {
@@ -82,7 +79,6 @@ router.post("/Logout", function (req, res) {
       message: "No user is currently logged in"
     });
   }
-
   console.log("User logged out with session ID: " + req.session.user_id);
   req.session.reset();
   return res.send({
@@ -91,21 +87,5 @@ router.post("/Logout", function (req, res) {
   });
 });
 
-// // Logout
-// router.post("/Logout", function (request, response) {
-//   console.log("User logged out with session ID: " + request.session.user_id);
-//   request.session.reset(); 
-//   response.send({ success: true, message: "logout succeeded" });
-// });
-
-
-// // boolean API interface to validate if there is a loged-in user (and who by userID) or not
-// router.get("/isUserLoggedIn", (request, response) => {
-//   if (request.session && request.session.user_id) {
-//     response.status(200).send({ isUserLoggedIn: true, username: request.session.username });
-//   } else {
-//     response.status(200).send({ isUserLoggedIn: false });
-//   }
-// });
 
 module.exports = router;

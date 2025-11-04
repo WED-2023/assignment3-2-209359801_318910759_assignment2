@@ -5,7 +5,6 @@ require("dotenv").config();
 
 const api_domain = "https://api.spoonacular.com/recipes";
 
-
 /**
  * Get recipes list from spooncular response and extract the relevant recipe data for preview
  * @param {*} recipes_info 
@@ -24,7 +23,7 @@ function normalizeId(id) {
   return  id.substring(2);;
 }
 
-
+// get full recipe information from spooncular API
 async function getRecipeInformation(recipe_id) {
     return await axios.get(`${api_domain}/${recipe_id}/information`, {
         params: {

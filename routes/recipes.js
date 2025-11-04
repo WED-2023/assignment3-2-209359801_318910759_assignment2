@@ -5,7 +5,6 @@ const recipes_utils = require("./utils/recipes_utils");
 const user_utils = require("./utils/user_utils");
 
 //  This is in the home page 
-
 // returns a 3 random recipes
 router.get("/", async (request, response, next) => {
     try {
@@ -15,30 +14,6 @@ router.get("/", async (request, response, next) => {
   } 
   catch (error) {next(error);}
 });
-
-// // search recipes according to query parameters
-// router.get("/search", async (request, response, next) => {
-//  try {
-//     const { query, cuisine, diet, intolerance, limit = 5, sort } = request.query;
-//     const intoleranceArray = intolerance ? intolerance.split(",") : [];
-
-//     const results_from_utils = await recipes_utils.searchRecipes(
-//       query, {
-//       cuisine,
-//       diet,
-//       intolerance: intoleranceArray,
-//       limit: parseInt(limit),
-//       sort,
-//     });
-//     if (request.session && request.session.user_id){
-//       request.session.last_search = results_from_utils;
-//     } 
-//     const results_preview = await user_utils.completeUserSpecificPreview(request.session, await recipes_utils.getRecipesPreview(results_from_utils));
-//     response.status(200).send(results_preview);
-//   } catch (err) {
-//     next(err);
-//   }
-// });
 
 // Search recipes according to filters and query parameters
 router.get("/search", async (request, response, next) => {
@@ -87,17 +62,6 @@ router.get("/search", async (request, response, next) => {
 });
 
 // // Get recipe details by ID
-// router.get("/search/:recipeId", async (request, response, next) => {
-//   try {
-//     let recipe = await recipes_utils.getRecipeDetails(request.params.recipeId);
-//     // Add user-specific info if logged in
-//     recipe = (await user_utils.completeUserSpecificPreview(request.session, [recipe]))[0];
-//     response.send(recipe);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
 router.get("/search/:recipeId", async (request, response, next) => {
   try {
     // grab params & session into their own consts
@@ -138,9 +102,8 @@ router.get("/LastSearched", async (request, response, next) => {
 router.post("/like/:recipeID", async (request, response, next) => {
   try {
     if (!request.session || !request.session.user_id) {
-      return response.status(401).send("Unauthorized: user not found"); // <-- חשוב ה-return
+      return response.status(401).send("Unauthorized: user not found");
     }
-
     await recipes_utils.increaseRecipeLikes(request.params.recipeID);
     return response.sendStatus(200);
   } catch (error) {
@@ -148,17 +111,5 @@ router.post("/like/:recipeID", async (request, response, next) => {
   }
 });
 
-// // increase likes of a recipe by ID
-// router.post("/like/:recipeID", async (request, response, next) => {
-//   try{
-//     if (!request.session || !request.session.user_id){
-//       response.status(401).send("Unauthorized: user not found");
-//     } 
-//     await recipes_utils.increaseRecipeLikes(request.params.recipeID);
-//     response.sendStatus(200);
-//   } catch(error){
-//     next(error); 
-//   }
-// });
 
 module.exports = router;
