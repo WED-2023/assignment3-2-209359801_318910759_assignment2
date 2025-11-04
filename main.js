@@ -1,17 +1,30 @@
 require("dotenv").config();
 //#region express configures
+
 var express = require("express");
 var path = require("path");
 var logger = require("morgan");
+
 const session = require("client-sessions");
 const DButils = require("./routes/utils/DButils");
-var cors = require('cors')
 
+var cors = require('cors')
 var app = express();
 
-app.use(logger("dev")); //logger
-app.use(express.json()); // parse application/json
+app.use(cors({
+  origin: 'http://localhost:8080',
+  credentials: true
+}));
 
+app.use(logger("dev")); //logger, each request sent to server will shown in console
+app.use(express.json()); // parse application/json -> even if the request has not send as json
+
+app.use(cors({
+  origin: 'http://localhost:8080',
+  credentials: true  
+}));
+
+// for each request we will open a session for the current client
 app.use(
   session({
     cookieName: "session", // the cookie key name
@@ -20,14 +33,16 @@ app.use(
     duration: 24 * 60 * 60 * 1000, // expired after 20 sec
     activeDuration: 1000 * 60 * 5, // if expiresIn < activeDuration,
     cookie: {
-      httpOnly: false,
+      httpOnly: false, 
+      secure: false,  
+      sameSite: 'lax' 
     }
     //the session will be extended by activeDuration milliseconds
   })
 );
-
 app.use(express.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 app.use(express.static(path.join(__dirname, "public"))); //To serve static files such as images, CSS files, and JavaScript files
+
 //local:
 app.use(express.static(path.join(__dirname, "dist")));
 //remote:
@@ -39,7 +54,6 @@ app.get("/",function(req,res)
   // res.sendFile(path.join(__dirname, '../assignment-3-3-frontend/dist/index.html'));
   //local:
   res.sendFile(__dirname+"/index.html");
-
 });
 
 // app.use(cors());
@@ -54,18 +68,17 @@ app.get("/",function(req,res)
 // app.options("*", cors(corsConfig));
 
 var port = process.env.PORT || "3000"; //local=3000 remote=80
-//#endregion
+//#endregion -> import all request handler files 
 const user = require("./routes/user");
 const recipes = require("./routes/recipes");
 const auth = require("./routes/auth");
 
-
-//#region cookie middleware
+//#region cookie middleware -> check if current client is a sign-up user
 app.use(function (req, res, next) {
   if (req.session && req.session.user_id) {
-    DButils.execQuery("SELECT user_id FROM users")
+    DButils.execQuery("SELECT userID FROM users")
       .then((users) => {
-        if (users.find((x) => x.user_id === req.session.user_id)) {
+        if (users.find((x) => x.userID === req.session.user_id)) {
           req.user_id = req.session.user_id;
         }
         next();
@@ -81,22 +94,17 @@ app.use(function (req, res, next) {
 app.get("/alive", (req, res) => res.send("I'm alive"));
 
 // Routings
-app.use("/users", user);
+app.use("/user", user); // for example, each request starts with /users (in the requested url) will sent to the user = ./routes/user file 
 app.use("/recipes", recipes);
 app.use("/", auth);
 
-
-
-
-
+// http:/localhost:3000/users/favorite
 
 // Default router
 app.use(function (err, req, res, next) {
   console.error(err);
   res.status(err.status || 500).send({ message: err.message, success: false });
 });
-
-
 
 const server = app.listen(port, () => {
   console.log(`Server listen on port ${port}`);

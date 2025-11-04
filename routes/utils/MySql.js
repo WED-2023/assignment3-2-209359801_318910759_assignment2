@@ -1,14 +1,16 @@
+// require == import for libs and modulues
 var mysql = require('mysql2');
+
 require("dotenv").config();
 
 const config={
 connectionLimit:4,
   host: process.env.host,//"localhost"
   user: process.env.user,//"root"
-  password: process.env.DBpassword,
-  database:process.env.database
-  // database:"mydb"
+  password: process.env.DBpassword, 
+  database:process.env.database // database:"mydb"
 }
+
 const pool = new mysql.createPool(config);
 
 const connection =  () => {
@@ -35,6 +37,7 @@ const connection =  () => {
      });
    });
  };
+
 const query = (sql, binding) => {
   return new Promise((resolve, reject) => {
     pool.query(sql, binding, (err, result, fields) => {
@@ -43,8 +46,8 @@ const query = (sql, binding) => {
     });
   });
 };
-module.exports = { pool, connection, query };
 
+module.exports = { pool, connection, query };
 
 
 

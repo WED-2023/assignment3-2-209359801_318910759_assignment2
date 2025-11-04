@@ -1,83 +1,72 @@
-
 var express = require("express");
 var router = express.Router();
 
-const MySql = require("../routes/utils/MySql");
-const DButils = require("../routes/utils/DButils");
+const MySql = require("./utils/MySql");
+const DB_utils = require("./utils/DButils");
 const bcrypt = require("bcrypt");
 
 
-
-
 // Register
-
-router.post("/Register", async (req, res, next) => {
+router.post("/Register", async (request, response, next) => {
   try {
-    // parameters exists
-    // valid parameters
-    // username exists
-
-    let user_details = {  
-      username: req.body.username,
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      country: req.body.country,
-      password: req.body.password,
-      email: req.body.email,
-      profilePic: req.body.profilePic
+    let user_info = {
+      username: request.body.username,
+      firstname: request.body.firstname,
+      lastname: request.body.lastname,
+      country: request.body.country,
+      password: request.body.password,
+      email: request.body.email,
     }
     let users = [];
-    users = await DButils.execQuery("SELECT username from all_users");
+    users = await DB_utils.execQuery("SELECT username, email FROM users");
 
-    if (users.find((x) => x.username === user_details.username))
-      throw { status: 409, message: "Username taken" };
+    if (users.find((x) => x.username === user_info.username))
+      throw { status: 409, message: "Username is already taken" };
+
+    if (users.find((x) => x.email === user_info.email))
+      throw { status: 409, message: "Email is already taken" };
 
     // add the new username
-    let hash_password = bcrypt.hashSync(
-      user_details.password,
-      parseInt(process.env.bcrypt_saltRounds)
-    );
+    let hash = bcrypt.hashSync(user_info.password, parseInt(process.env.bcrypt_saltRounds));
 
-    await DButils.execQuery(
-      `INSERT INTO all_users (username, first_name, last_name, country, password, email, profilePic) VALUES (
-      '${user_details.username}','${user_details.first_name}','${user_details.last_name}',
-      '${user_details.country}','${hash_password}','${user_details.email}','${user_details.profilePic}')`
-    );
-    res.status(201).send({ message: "user created", success: true });
+    // removed profilePic property
+    await DB_utils.execQuery(
+    `INSERT INTO users (username, firstname, lastname, country, password, email)
+    VALUES ('${user_info.username}', '${user_info.firstname}', '${user_info.lastname}',
+            '${user_info.country}', '${hash}', '${user_info.email}')`);
+
+    response.status(201).send({ message: "User created", success: true });
   } catch (error) {
     next(error);
   }
 });
 
-
-
-
 // Login
-
-router.post("/Login", async (req, res, next) => {
+router.post("/Login", async (request, response, next) => {
   try {
-    // check that username exists
-    const users = await DButils.execQuery("SELECT username FROM all_users");
-    if (!users.find((x) => x.username === req.body.username))
-      throw { status: 401, message: "Username or Password incorrect" };
+    // username check
+    const users = await DB_utils.execQuery("SELECT username FROM users");
 
-    // check that the password is correct
+    if (!users.find((x) => x.username === request.body.username))
+      throw { status: 401, message: "Username incorrect" };
+
+    // password check
     const user = (
-      await DButils.execQuery(
-        `SELECT * FROM all_users WHERE username = '${req.body.username}'`
+      await DB_utils.execQuery(
+        `SELECT * FROM users WHERE username = '${request.body.username}'`
       )
     )[0];
 
-    if (!bcrypt.compareSync(req.body.password, user.password)) {
-      throw { status: 401, message: "Username or Password incorrect" };
+    if (!bcrypt.compareSync(request.body.password, user.password)) {
+      throw { status: 401, message: "Password are incorrect" };
     }
 
     // Set cookie
-    req.session.user_id = user.user_id;
-    console.log("session user_id login: " + req.session.user_id);
+    request.session.user_id = user.userID;
+    console.log("User logged in with session ID: " + request.session.user_id);
 
     // return cookie
-    res.status(200).send({ message: "login succeeded " , success: true });
+    response.status(200).send({ message: "login succeeded " , success: true });
   } catch (error) {
     next(error);
   }
@@ -85,14 +74,38 @@ router.post("/Login", async (req, res, next) => {
 
 
 
-
-
-
-
+// Logout
 router.post("/Logout", function (req, res) {
-  console.log("session user_id Logout: " + req.session.user_id);
-  req.session.reset(); // reset the session info --> send cookie when  req.session == undefined!!
-  res.send({ success: true, message: "logout succeeded" });
+  if (!req.session || !req.session.user_id) {
+    return res.status(400).send({
+      success: false,
+      message: "No user is currently logged in"
+    });
+  }
+
+  console.log("User logged out with session ID: " + req.session.user_id);
+  req.session.reset();
+  return res.send({
+    success: true,
+    message: "Logout succeeded"
+  });
 });
+
+// // Logout
+// router.post("/Logout", function (request, response) {
+//   console.log("User logged out with session ID: " + request.session.user_id);
+//   request.session.reset(); 
+//   response.send({ success: true, message: "logout succeeded" });
+// });
+
+
+// // boolean API interface to validate if there is a loged-in user (and who by userID) or not
+// router.get("/isUserLoggedIn", (request, response) => {
+//   if (request.session && request.session.user_id) {
+//     response.status(200).send({ isUserLoggedIn: true, username: request.session.username });
+//   } else {
+//     response.status(200).send({ isUserLoggedIn: false });
+//   }
+// });
 
 module.exports = router;
