@@ -38,7 +38,7 @@ router.post('/recipes', async (request, response, next) => {
 
     if (!status.success)
       return response.status(500).send("Server failed to add new recipe");
-    response.status(200).send(`Recipe added to list ${status.recipeID}`);
+    response.status(200).send(`Recipe added to list ${status.recipe_id}`);
     } catch(error){
     next(error);
   }
@@ -112,19 +112,24 @@ router.post('/favorites', async (request, response, next) => {
 
 // Get favorite recipes for current user session
 router.get('/favorites', async (request, response, next) => {
-  try{
+  try {
     const user_id = request.session.user_id;
-    // getFavoriteRecipes returns an array of {recepieID: U_ID or ID}. 
     const recipes_id = await user_utils.getFavoriteRecipes(user_id);
+    const recipes_id_array = recipes_id.map(e => e.recipeID);
 
-    let recipes_id_array = [];
-    recipes_id.map((element) => recipes_id_array.push(element.recipeID)); //extracting the recipe ids into array
-    // const results = await user_utils.completeUserSpecificPreview(request.session, await recipe_utils.getRecipesPreview(recipes_id_array));
-    response.status(200).send(recipes_id_array);
-  } catch(error){
-    next(error); 
+    if (recipes_id_array.length === 0) {
+      return response.status(200).send([]); 
+    }
+
+    const previews = await recipe_utils.getRecipesPreview(recipes_id_array);
+    const results = await user_utils.completeUserSpecificPreview(request.session, previews);
+
+    response.status(200).send(results);
+  } catch (error) {
+    next(error);
   }
 });
+
 
 // Remove recipeID from favorites for current user session
 router.delete('/favorites/:recipeID', async (request, response, next) => {

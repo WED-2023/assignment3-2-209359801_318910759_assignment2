@@ -117,7 +117,7 @@ async function createNewRecipe(user_id, recipe_details) {
       ${user_id})`
     );
 
-  return { success: true, recipeID: newID };
+  return { success: true, recipe_id: newID };
 }
 
 async function getUserRecipes(user_id) {
