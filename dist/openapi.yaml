@@ -130,31 +130,6 @@ paths:
           description: User not loged-in
 
 
-  # /isUserLoggedIn:
-  #   get:
-  #     summary: Check if the user is currently logged in
-  #     tags:
-  #       - home
-  #     responses:
-  #       '200':
-  #         description: Login status of the user
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: object
-  #               properties:
-  #                 isUserLoggedIn:
-  #                   type: boolean
-  #                   description: Whether the user is logged in or not
-  #                   example: true
-  #                 username:
-  #                   type: string
-  #                   description: The username of the logged-in user (only if logged in)
-  #                   example: "Omer99"
-  #       '500':
-  #         description: Internal server error
-
-
 # recipes: 
   /recipes:
     get:
