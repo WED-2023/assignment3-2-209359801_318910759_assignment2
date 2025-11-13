@@ -32,6 +32,7 @@ router.use(async function (request, response, next) {
 // Add a new recipe to the logged-in user's personal recipes
 router.post('/recipes', async (request, response, next) => {
   try{
+    console.log("Adding new recipe:", request.body);
     const user_id = request.session.user_id;
     const recipe_details = request.body;
     const status = await user_utils.createNewRecipe(user_id, recipe_details);
@@ -51,7 +52,7 @@ router.get("/recipes", async (request, response, next) => {
     const recipes_id = await user_utils.getUserRecipes(user_id);
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipeID)); //extracting the recipe ids into array
-    console.log(`User recipes by id: ${recipes_id_array}`);
+    // console.log(`User recipes by id: ${recipes_id_array}`);
     // const results = await user_utils.completeUserSpecificPreview(request.session, await recipe_utils.getRecipesPreview(recipes_id_array));
     response.status(200).send(recipes_id_array);
   } catch(error){
@@ -63,12 +64,14 @@ router.get("/recipes", async (request, response, next) => {
 router.delete("/recipes/:recipeID", async (request, response, next) => {
   try {
     const user_id = request.session.user_id;
-    let { recipeID } = request.params;
+    let { recipeID: recipes_id } = request.params;
 
-    if (!recipeID.startsWith('U_')) {
-      recipeID = `U_${recipeID}`;
+    console.log(`Deleting recipe with ID: ${recipes_id} for user: ${user_id}`);
+    
+    if (!recipes_id.startsWith('U_')) {
+      recipes_id = `U_${recipes_id}`;
     }
-    const deleted = await user_utils.removeUserRecipe(user_id, recipeID);
+    const deleted = await user_utils.removeUserRecipe(user_id, recipes_id);
     if (!deleted) {
       return response.status(404).send({ message: "Recipe not found" });
     }
@@ -135,14 +138,14 @@ router.get('/favorites', async (request, response, next) => {
 router.delete('/favorites/:recipeID', async (request, response, next) => {
   try {
     const user_id = request.session.user_id;
-    const recipeID = request.params.recipeID;
+    const recipe_id = request.params.recipeID;
 
-    const isFavorite = await user_utils.isFavoriteByUser(user_id, recipeID);
+    const isFavorite = await user_utils.isFavoriteByUser(user_id, recipe_id);
     if (!isFavorite) {
       response.status(404).send({ message: "Recipe not found in favorites" });
       return;
     }
-    await user_utils.removeFavoriteRecipe(user_id, recipeID);
+    await user_utils.removeFavoriteRecipe(user_id, recipe_id);
     response.status(200).send({ message: "Recipe successfully removed from favorites" });
   } catch (error) {
     next(error);
