@@ -47,7 +47,7 @@ router.post("/Login", async (request, response, next) => {
     const users = await DB_utils.execQuery("SELECT username FROM users");
 
     if (!users.find((x) => x.username === request.body.username))
-      throw { status: 401, message: "Username incorrect" };
+      throw {status: 401, message: "Username incorrect"};
 
     // password check
     const user = (
@@ -57,7 +57,7 @@ router.post("/Login", async (request, response, next) => {
     )[0];
 
     if (!bcrypt.compareSync(request.body.password, user.password)) {
-      throw { status: 401, message: "Password are incorrect" };
+      throw {status: 401, message: "Password are incorrect"};
     }
 
     // Set cookie
@@ -65,7 +65,7 @@ router.post("/Login", async (request, response, next) => {
     console.log("User logged in with session ID: " + request.session.user_id);
 
     // return cookie
-    response.status(200).send({ message: "login succeeded " , success: true });
+    response.status(200).send({message: "login succeeded ", success: true});
   } catch (error) {
     next(error);
   }
@@ -74,17 +74,12 @@ router.post("/Login", async (request, response, next) => {
 // Logout
 router.post("/Logout", function (req, res) {
   if (!req.session || !req.session.user_id) {
-    return res.status(400).send({
-      success: false,
-      message: "No user is currently logged in"
-    });
+    return res.status(400).send({success: false, message: "No user is currently logged in"});
   }
+
   console.log("User logged out with session ID: " + req.session.user_id);
   req.session.reset();
-  return res.send({
-    success: true,
-    message: "Logout succeeded"
-  });
+  return res.send({success: true, message: "Logout succeeded"});
 });
 
 
