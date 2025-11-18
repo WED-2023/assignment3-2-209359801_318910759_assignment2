@@ -45,20 +45,22 @@ router.post('/recipes', async (request, response, next) => {
   }
 });
 
+
 // Get the logged-in user's personal recipes
 router.get("/recipes", async (request, response, next) => {
-  try{
+  try {
     const user_id = request.session.user_id;
     const recipes_id = await user_utils.getUserRecipes(user_id);
-    let recipes_id_array = [];
-    recipes_id.map((element) => recipes_id_array.push(element.recipeID)); //extracting the recipe ids into array
-    // console.log(`User recipes by id: ${recipes_id_array}`);
-    // const results = await user_utils.completeUserSpecificPreview(request.session, await recipe_utils.getRecipesPreview(recipes_id_array));
-    response.status(200).send(recipes_id_array);
-  } catch(error){
-    next(error); 
+    const recipes_id_array = recipes_id.map((element) => element.recipeID);
+    const previews = await recipe_utils.getRecipesPreview(recipes_id_array);
+    const results = await user_utils.completeUserSpecificPreview(request.session,previews);
+
+    response.status(200).send(results);
+  } catch (error) {
+    next(error);
   }
 });
+
 
 // Delete a personal recipe by ID
 router.delete("/recipes/:recipeID", async (request, response, next) => {
