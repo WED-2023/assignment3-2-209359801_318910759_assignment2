@@ -152,35 +152,6 @@ router.delete('/favorites/:recipeID', async (request, response, next) => {
   }
 });
 
-
-// // Mark recipeID as watched for current user session - make this action tranperent in frounted
-// router.post("/watch", async (req, res, next) => {
-//     try{
-//     const user_id = req.session.user_id;
-//     const recipe_id = req.body.recipeID;
-//     await user_utils.markAsWatched(user_id,recipe_id);
-//     res.status(200).send("The Recipe successfully saved as watched");
-//     } catch(error){
-//     next(error);
-//   }
-// });
-
-
-// // Get watched recipes for current user session - make this action tranperent in frounted
-// router.get("/watch", async (req, res, next) => {
-//     try{
-//     const user_id = req.session.user_id;
-//     // getWatchedRecipes returns an array of {recepieID: xx}. Note - this is a Spooncular type of recipe ID.
-//     const recipes_id = await user_utils.getWatchedRecipes(user_id);
-//     let recipes_id_array = [];
-//     recipes_id.map((element) => recipes_id_array.push(element.recipeID)); //extracting the recipe ids into array
-//     const results = await user_utils.completeUserSpecificPreview(req.session, await recipe_utils.getRecipesPreview(recipes_id_array));
-//     res.status(200).send(results);
-//   } catch(error){
-//     next(error); 
-//   }
-// });
-
 // Check if a username exists
 router.get("/check-username", async (request, response, next) => {
   try {

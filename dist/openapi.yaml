@@ -1,9 +1,5 @@
 openapi: 3.0.3
 servers:
-  # # Added by API Auto Mocking Plugin
-  # # Added by API Auto Mocking Plugin
-  # # Added by API Auto Mocking Plugin
-
 
   # - description: SwaggerHub API Auto Mocking
   #   url: https://virtserver.swaggerhub.com/bengutionuneversity/demo/1.0.0
